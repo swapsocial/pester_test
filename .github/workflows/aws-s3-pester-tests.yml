@@ -47,26 +47,9 @@ jobs:
         run: |
           Invoke-Pester -Path ./tests/AwsS3.Tests.ps1 -OutputFormat NUnitXml -OutputFile ./test-results/test-results.xml
 
-      # Apply XSLT transformation to convert XML to HTML
-      - name: Convert XML to HTML
-        run: |
-          # Define the XSLT and XML file paths
-          $xsltPath = "./nunit-to-html.xslt"
-          $xmlPath = "./test-results/test-results.xml"
-          $htmlPath = "./test-results/test-results.html"
-
-          # Load XSLT and XML
-          $xslt = New-Object System.Xml.Xsl.XslCompiledTransform
-          $xslt.Load($xsltPath)
-
-          # Load XML file and apply transformation
-          $xml = New-Object System.Xml.XmlDocument
-          $xml.Load($xmlPath)
-          $xslt.Transform($xml, $null, [System.IO.StreamWriter]::new($htmlPath))
-
-      # Upload HTML test results as an artifact
-      - name: Upload test results (HTML)
-        uses: actions/upload-artifact@v4
+      # Upload test results to GitHub Actions
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
         with:
-          name: pester-test-results-html
-          path: ./test-results/test-results.html
+          name: pester-test-results
+          path: ./test-results/test-results.xml
