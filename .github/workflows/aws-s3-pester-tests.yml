@@ -45,4 +45,4 @@ jobs:
       - name: Run Pester Tests
         run: |
           # Run the Pester tests for AWS S3
-          Invoke-Pester -Path ./tests/AwsS3.Tests.ps1
+          Invoke-Pester -Path ./tests/AwsS3.Tests.ps1 -PassThru | Out-Null
