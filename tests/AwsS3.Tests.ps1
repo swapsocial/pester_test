@@ -1,47 +1,91 @@
-name: Run Pester Tests for AWS S3 Bucket
+Import-Module AWSPowerShell
 
-on:
-  push:
-    branches:
-      - main  # Run tests on push to the main branch
-  pull_request:
-    branches:
-      - main  # Run tests on pull requests targeting the main branch
+Describe 'AWS Resource Tests' {
 
-jobs:
-  run-pester-tests:
-    runs-on: windows-latest  # Use a Windows runner to run PowerShell scripts
+    # Initialize an array to store results
+    $results = @()
 
-    steps:
-      # Checkout the repository code
-      - name: Checkout code
-        uses: actions/checkout@v3
+    Context 'S3 Bucket Tests' {
 
-      # Set up AWS CLI and PowerShell modules
-      - name: Set up AWS CLI and PowerShell modules
-        run: |
-          # Install AWS CLI
-          Invoke-WebRequest https://awscli.amazonaws.com/AWSCLIV2/latest/windows/awscliv2.msi -OutFile awscliv2.msi
-          Start-Process msiexec.exe -ArgumentList '/i', 'awscliv2.msi', '/quiet', '/norestart' -Wait
-          Remove-Item -Force awscliv2.msi
+        It 'Should check if the S3 bucket exists' {
+            $bucketName = 'northstar-terraform-resources'
+            $bucket = Get-S3Bucket -BucketName $bucketName -ErrorAction SilentlyContinue
+            
+            # Store the result
+            $results += [PSCustomObject]@{
+                Test = 'S3 Bucket Exists'
+                Result = if ($bucket) { 'Pass' } else { 'Fail' }
+                Details = if ($bucket) { 'Bucket exists' } else { 'Bucket does not exist' }
+            }
+        }
 
-          # Install the AWS PowerShell module
-          Install-Module -Name AWSPowerShell -Force -Scope CurrentUser
+        It 'Should check if S3 bucket versioning is enabled' {
+            $bucketName = 'northstar-terraform-resources'
+            $versioning = Get-S3BucketVersioning -BucketName $bucketName -ErrorAction SilentlyContinue
 
-      # Configure AWS credentials
-      - name: Set up AWS credentials
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set region ${{ secrets.AWS_REGION }}
+            # Store the result
+            $results += [PSCustomObject]@{
+                Test = 'S3 Bucket Versioning Enabled'
+                Result = if ($versioning.Status -eq 'Enabled') { 'Pass' } else { 'Fail' }
+                Details = if ($versioning.Status -eq 'Enabled') { 'Versioning is enabled' } else { 'Versioning is not enabled' }
+            }
+        }
+    }
 
-      # Install Pester module
-      - name: Install Pester module
-        run: |
-          Install-Module -Name Pester -Force -Scope CurrentUser
+    Context 'EKS Cluster Tests' {
 
-      # Run the Pester tests
-      - name: Run Pester Tests
-        run: |
-          # Run the Pester tests for AWS S3
-          Invoke-Pester -Path ./tests/AwsS3.Tests.ps1
+        It 'Should check if the EKS cluster is active' {
+            $clusterName = 'dots-ns-eks_cluster'
+            $cluster = Get-EksCluster -Name $clusterName -ErrorAction SilentlyContinue
+
+            # Store the result
+            $results += [PSCustomObject]@{
+                Test = 'EKS Cluster Status'
+                Result = if ($cluster.Status -eq 'ACTIVE') { 'Pass' } else { 'Fail' }
+                Details = if ($cluster.Status -eq 'ACTIVE') { 'Cluster is active' } else { 'Cluster is not active' }
+            }
+        }
+
+        It 'Should check if the EKS cluster has the correct IAM role' {
+            $clusterName = 'dots-ns-eks_cluster'
+            $cluster = Get-EksCluster -Name $clusterName -ErrorAction SilentlyContinue
+            
+            # Store the result
+            $expectedRoleArn = 'arn:aws:iam::your-account-id:role/your-cluster-role'  # Update with the correct ARN
+            $results += [PSCustomObject]@{
+                Test = 'EKS Cluster IAM Role'
+                Result = if ($cluster.RoleArn -eq $expectedRoleArn) { 'Pass' } else { 'Fail' }
+                Details = if ($cluster.RoleArn -eq $expectedRoleArn) { 'IAM role is correct' } else { 'IAM role is incorrect' }
+            }
+        }
+    }
+
+    Context 'Bastion Host Tests' {
+
+        It 'Should check if the Bastion host exists' {
+            $bastionInstanceId = 'i-0ece3bdbea5d5a02b' 
+            $bastionHost = Get-EC2Instance -InstanceId $bastionInstanceId -ErrorAction SilentlyContinue
+            
+            # Store the result
+            $results += [PSCustomObject]@{
+                Test = 'Bastion Host Exists'
+                Result = if ($bastionHost) { 'Pass' } else { 'Fail' }
+                Details = if ($bastionHost) { 'Bastion host exists' } else { 'Bastion host does not exist' }
+            }
+        }
+
+        It 'Should check if the Bastion host is running' {
+            $bastionInstanceId = 'i-0ece3bdbea5d5a02b'  # Replace with your Bastion host ID
+            $bastionHost = Get-EC2Instance -InstanceId $bastionInstanceId -ErrorAction SilentlyContinue
+            
+            # Store the result
+            $results += [PSCustomObject]@{
+                Test = 'Bastion Host Running'
+                Result = if ($bastionHost.State.Name -eq 'running') { 'Pass' } else { 'Fail' }
+                Details = if ($bastionHost.State.Name -eq 'running') { 'Bastion host is running' } else { 'Bastion host is not running' }
+            }
+        }
+    }
+    # Print the results in a formatted table
+    $results | Format-Table -AutoSize
+}
