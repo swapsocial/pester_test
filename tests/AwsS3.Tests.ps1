@@ -2,7 +2,7 @@
 Import-Module AWS.Tools.S3
 
 # Define the S3 Bucket name you want to test
-$bucketName = "my-test-bucket-123456"  # Change this to your S3 bucket name
+$bucketName = "northstar-terraform-resources"  # Change this to your S3 bucket name
 
 Describe "AWS S3 Bucket Tests" {
     It "Should verify the bucket exists" {
