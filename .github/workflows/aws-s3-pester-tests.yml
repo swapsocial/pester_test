@@ -17,15 +17,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up AWS CLI and PowerShell modules
-      - name: Set up AWS CLI and PowerShell modules
+      # Set up AWS CLI using Chocolatey
+      - name: Install AWS CLI using Chocolatey
         run: |
-          # Install AWS CLI
-          Invoke-WebRequest https://awscli.amazonaws.com/AWSCLIV2/latest/windows/awscliv2.msi -OutFile awscliv2.msi
-          Start-Process msiexec.exe -ArgumentList '/i', 'awscliv2.msi', '/quiet', '/norestart' -Wait
-          Remove-Item -Force awscliv2.msi
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+          Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')
+          choco install awscli -y
 
-          # Install the AWS PowerShell module
+      # Install the AWS PowerShell module
+      - name: Install AWS PowerShell Module
+        run: |
           Install-Module -Name AWSPowerShell -Force -Scope CurrentUser
 
       # Configure AWS credentials
