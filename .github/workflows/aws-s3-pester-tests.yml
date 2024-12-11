@@ -50,9 +50,38 @@ jobs:
               Write-Warning "Some tests failed. Continuing the build."
           }
 
-      # Upload test results to GitHub Actions
-      - name: Upload test results
+     # Apply XSLT transformation to convert XML to HTML
+      - name: Convert XML to HTML
+        run: |
+          # Define the XSLT and XML file paths
+          $xsltPath = "./nunit-to-html.xslt"
+          $xmlPath = "./test-results/test-results.xml"
+          $htmlPath = "./test-results/test-results.html"
+
+          # Load XSLT and XML
+          $xslt = New-Object System.Xml.Xsl.XslCompiledTransform
+          $xslt.Load($xsltPath)
+
+          # Load XML file and apply transformation
+          $xml = New-Object System.Xml.XmlDocument
+          $xml.Load($xmlPath)
+          $xslt.Transform($xml, $null, [System.IO.StreamWriter]::new($htmlPath))
+
+      # Install wkhtmltopdf using Chocolatey for converting HTML to PDF
+      - name: Install wkhtmltopdf using Chocolatey
+        run: |
+          choco install wkhtmltopdf -y
+
+      # Convert HTML to PDF using wkhtmltopdf
+      - name: Convert HTML to PDF
+        run: |
+          wkhtmltopdf ./test-results/test-results.html ./test-results/test-results.pdf
+
+      # Upload both HTML and PDF test results as artifacts
+      - name: Upload test results (HTML and PDF)
         uses: actions/upload-artifact@v3
         with:
           name: pester-test-results
-          path: ./test-results/test-results.xml
+          path: |
+            ./test-results/test-results.html
+            ./test-results/test-results.pdf
