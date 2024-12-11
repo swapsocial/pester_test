@@ -46,13 +46,19 @@ jobs:
         run: |
           Invoke-Pester -Path ./tests/AwsS3.Tests.ps1 -OutputFormat NUnitXml -OutputFile ./test-results/test-results.xml
 
-      # Apply XSLT transformation to convert XML to HTML
+      # Ensure the XSLT file exists, and convert XML to HTML
       - name: Convert XML to HTML
         run: |
           # Define the XSLT and XML file paths
-          $xsltPath = "./nunit-to-html.xslt"
+          $xsltPath = "./nunit-to-html.xslt"  # Update this path if the file is in a subfolder
           $xmlPath = "./test-results/test-results.xml"
           $htmlPath = "./test-results/test-results.html"
+
+          # Check if XSLT file exists
+          if (-Not (Test-Path $xsltPath)) {
+            Write-Error "XSLT file not found at $xsltPath"
+            exit 1
+          }
 
           # Load XSLT and XML
           $xslt = New-Object System.Xml.Xsl.XslCompiledTransform
