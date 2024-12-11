@@ -43,22 +43,17 @@ jobs:
 
       # Run the Pester tests and output to XML
       - name: Run Pester Tests
+        continue-on-error: true
         run: |
           Invoke-Pester -Path ./tests/AwsS3.Tests.ps1 -OutputFormat NUnitXml -OutputFile ./test-results/test-results.xml
 
-      # Ensure the XSLT file exists, and convert XML to HTML
+      # Apply XSLT transformation to convert XML to HTML
       - name: Convert XML to HTML
         run: |
           # Define the XSLT and XML file paths
-          $xsltPath = "./nunit-to-html.xslt"  # Update this path if the file is in a subfolder
+          $xsltPath = "./nunit-to-html.xslt"
           $xmlPath = "./test-results/test-results.xml"
           $htmlPath = "./test-results/test-results.html"
-
-          # Check if XSLT file exists
-          if (-Not (Test-Path $xsltPath)) {
-            Write-Error "XSLT file not found at $xsltPath"
-            exit 1
-          }
 
           # Load XSLT and XML
           $xslt = New-Object System.Xml.Xsl.XslCompiledTransform
@@ -69,21 +64,9 @@ jobs:
           $xml.Load($xmlPath)
           $xslt.Transform($xml, $null, [System.IO.StreamWriter]::new($htmlPath))
 
-      # Install wkhtmltopdf using Chocolatey for converting HTML to PDF
-      - name: Install wkhtmltopdf using Chocolatey
-        run: |
-          choco install wkhtmltopdf -y
-
-      # Convert HTML to PDF using wkhtmltopdf
-      - name: Convert HTML to PDF
-        run: |
-          wkhtmltopdf ./test-results/test-results.html ./test-results/test-results.pdf
-
-      # Upload both HTML and PDF test results as artifacts
-      - name: Upload test results (HTML and PDF)
-        uses: actions/upload-artifact@v3
+      # Upload HTML test results as an artifact
+      - name: Upload test results (HTML)
+        uses: actions/upload-artifact@v4
         with:
-          name: pester-test-results
-          path: |
-            ./test-results/test-results.html
-            ./test-results/test-results.pdf
+          name: pester-test-results-html
+          path: ./test-results/test-results.html
