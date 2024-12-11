@@ -63,7 +63,7 @@ Describe 'AWS Resource Tests' {
     Context 'Bastion Host Tests' {
 
         It 'Should check if the Bastion host exists' {
-            $bastionInstanceId = 'i-0ece3bdbea5d5a02b' 
+            $bastionInstanceId = 'i-0b6cbd52f96e3d465' 
             $bastionHost = Get-EC2Instance -InstanceId $bastionInstanceId -ErrorAction SilentlyContinue
             
             # Store the result
@@ -75,7 +75,7 @@ Describe 'AWS Resource Tests' {
         }
 
         It 'Should check if the Bastion host is running' {
-            $bastionInstanceId = 'i-0ece3bdbea5d5a02b'  # Replace with your Bastion host ID
+            $bastionInstanceId = 'i-0b6cbd52f96e3d465'  # Replace with your Bastion host ID
             $bastionHost = Get-EC2Instance -InstanceId $bastionInstanceId -ErrorAction SilentlyContinue
             
             # Store the result
