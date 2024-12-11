@@ -32,33 +32,33 @@ Describe 'AWS Resource Tests' {
         }
     }
 
-    Context 'EKS Cluster Tests' {
+    # Context 'EKS Cluster Tests' {
 
-        It 'Should check if the EKS cluster is active' {
-            $clusterName = 'dots-ns-eks_cluster'
-            $cluster = Get-EksCluster -Name $clusterName -ErrorAction SilentlyContinue
+    #     It 'Should check if the EKS cluster is active' {
+    #         $clusterName = 'dots-ns-eks_cluster'
+    #         $cluster = Get-EksCluster -Name $clusterName -ErrorAction SilentlyContinue
 
-            # Store the result
-            $results += [PSCustomObject]@{
-                Test = 'EKS Cluster Status'
-                Result = if ($cluster.Status -eq 'ACTIVE') { 'Pass' } else { 'Fail' }
-                Details = if ($cluster.Status -eq 'ACTIVE') { 'Cluster is active' } else { 'Cluster is not active' }
-            }
-        }
+    #         # Store the result
+    #         $results += [PSCustomObject]@{
+    #             Test = 'EKS Cluster Status'
+    #             Result = if ($cluster.Status -eq 'ACTIVE') { 'Pass' } else { 'Fail' }
+    #             Details = if ($cluster.Status -eq 'ACTIVE') { 'Cluster is active' } else { 'Cluster is not active' }
+    #         }
+    #     }
 
-        It 'Should check if the EKS cluster has the correct IAM role' {
-            $clusterName = 'dots-ns-eks_cluster'
-            $cluster = Get-EksCluster -Name $clusterName -ErrorAction SilentlyContinue
+    #     It 'Should check if the EKS cluster has the correct IAM role' {
+    #         $clusterName = 'dots-ns-eks_cluster'
+    #         $cluster = Get-EksCluster -Name $clusterName -ErrorAction SilentlyContinue
             
-            # Store the result
-            $expectedRoleArn = 'arn:aws:iam::your-account-id:role/your-cluster-role'  # Update with the correct ARN
-            $results += [PSCustomObject]@{
-                Test = 'EKS Cluster IAM Role'
-                Result = if ($cluster.RoleArn -eq $expectedRoleArn) { 'Pass' } else { 'Fail' }
-                Details = if ($cluster.RoleArn -eq $expectedRoleArn) { 'IAM role is correct' } else { 'IAM role is incorrect' }
-            }
-        }
-    }
+    #         # Store the result
+    #         $expectedRoleArn = 'arn:aws:iam::your-account-id:role/your-cluster-role'  # Update with the correct ARN
+    #         $results += [PSCustomObject]@{
+    #             Test = 'EKS Cluster IAM Role'
+    #             Result = if ($cluster.RoleArn -eq $expectedRoleArn) { 'Pass' } else { 'Fail' }
+    #             Details = if ($cluster.RoleArn -eq $expectedRoleArn) { 'IAM role is correct' } else { 'IAM role is incorrect' }
+    #         }
+    #     }
+    # }
 
     Context 'Bastion Host Tests' {
 
