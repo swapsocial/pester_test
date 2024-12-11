@@ -45,4 +45,11 @@ jobs:
       - name: Run Pester Tests
         run: |
           # Run the Pester tests for AWS S3
-          Invoke-Pester -Path ./tests/AwsS3.Tests.ps1
+          Invoke-Pester -Path ./tests/AwsS3.Tests.ps1 -OutputFormat NUnitXml -OutputFile ./test-results/test-results.xml
+
+     # Upload test results to GitHub Actions
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: pester-test-results
+          path: ./test-results/test-results.xml
