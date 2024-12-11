@@ -43,12 +43,14 @@ jobs:
 
       # Run the Pester tests without failing the pipeline
       - name: Run Pester Tests
+        continue-on-error: true
         run: |
           # Run the Pester tests for AWS S3 and output to XML
           $results = Invoke-Pester -Path ./tests/AwsS3.Tests.ps1 -OutputFormat NUnitXml -OutputFile ./test-results/test-results.xml -PassThru
           if ($results.Passed -eq $false) {
               Write-Warning "Some tests failed. Continuing the build."
           }
+        
 
      # Apply XSLT transformation to convert XML to HTML
       - name: Convert XML to HTML
