@@ -14,12 +14,12 @@ jobs:
 
     steps:
       - name: Checkout repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up PowerShell
-        uses: PowerShell/PowerShell@v2  # Use the correct version of PowerShell setup action
+        uses: actions/setup-powershell@v2  # Correct setup action for PowerShell
         with:
-          azPSSession: true  # Enables Azure PowerShell module in the environment
+          version: '7.x'
 
       - name: Install Azure CLI
         run: |
