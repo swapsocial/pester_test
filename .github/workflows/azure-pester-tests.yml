@@ -10,15 +10,16 @@ on:
 
 jobs:
   run-pester-tests:
-    runs-on: windows-latest
+    runs-on: windows-latest  # Use Windows-based runner
+
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v2
 
       - name: Set up PowerShell
-        uses: PowerShell/PowerShell@v7.2.1
+        uses: PowerShell/PowerShell@v2  # Use the correct version of PowerShell setup action
         with:
-          azPSSession: true 
+          azPSSession: true  # Enables Azure PowerShell module in the environment
 
       - name: Install Azure CLI
         run: |
@@ -36,11 +37,11 @@ jobs:
       - name: Run Pester Tests
         run: |
           # Path to the Pester test scripts
-          Invoke-Pester -Script .\azure_tests\*.ps1
+          Invoke-Pester -Script .\az-tests\*.ps1
         shell: pwsh
 
       - name: Upload Pester Test Results as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: pester-test-results
-          path: ./azure_tests_output/*.xml  
+          path: ./test-outputs/*.xml  # Adjust based on your test output file path
